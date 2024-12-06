@@ -4,13 +4,13 @@ import { Project } from "./Project";
 
 @Entity()
 export class Agency {
-  @PrimaryGeneratedColumn('uuid', { name: 'id' })
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ name: 'name', type: 'varchar', length: 255 })
   name: string;
 
-  @Column({ name: 'address', type: 'varchar', length: 255 })
+  @Column({ name: 'address', type: 'varchar', length: 255, nullable: true })
   address: string;
 
   @OneToMany(() => User, (user) => user.agency)

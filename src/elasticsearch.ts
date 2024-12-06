@@ -1,15 +1,38 @@
 import { Client } from "@elastic/elasticsearch";
+const fs = require('fs')
+const path = require('path');
+
+// const cert = __dirname.replace("src", "elastic-start-local-2")+"/certs/ca/ca.crt"
+// const certsDir = path.resolve(__dirname, 'certs');
+const certs = path.resolve('/usr/share/elasticsearch/config/certs', 'ca/ca.crt')
+// console.log('dirname', __dirname.replace("src", "elastic-start-local-2")+"/certs/ca.crt")
+
 
 export const esClient = new Client({
-    node: process.env.ELASTICSEARCH_NODE,  // URL of your Elasticsearch cluster
+    node: process.env.ELASTICSEARCH_NODE_1,  // URL of your Elasticsearch cluster
     auth: {
       username: process.env.ELASTICSEARCH_USERNAME || "elastic",  // Your Elasticsearch username
       password: process.env.ELASTICSEARCH_PASSWORD || "nm5cEWcc",  // Your Elasticsearch password
     },
-    // ssl: { ̰
-    //   rejectUnauthorized: false,  // If using self-signed certificates, set this to false
-    // },
-  });
+    tls: {
+      ca: fs.readFileSync(certs),  // Path to your custom CA certificate (if applicable)
+      rejectUnauthorized: true  // Ensure the certificate is verified
+    }
+});
+
+const checkConnection = async () => {
+  try {
+    // Ping the Elasticsearch server to check the connection
+    const response = await esClient.cluster.health();
+    
+    // If the connection is successful, you will get the cluster health status
+    console.log('Connection established: Cluster health status:', response.status);
+  } catch (error) {
+    console.error('Error connecting to Elasticsearch:', error);
+  }
+};
+
+checkConnection();
 
 // Function to update mappings programmatically
 export const updateElasticsearchMapping = async () => {
